@@ -55,3 +55,45 @@ redis_namespace: some:space
 beaver  -c /etc/beaver/conf -t redis
 
 
+---
+
+#
+# Example ("real world")
+#
+## Real-world usage of Redis as a transport:
+
+# in /etc/hosts
+192.168.0.10 redis-internal01
+192.168.0.11 redis-internal02
+
+# /etc/beaver/conf
+[beaver]
+redis_url: redis://redis-internal01:6379/0,redis://redis-internal02:6379/0
+redis_namespace: app:unmappable
+
+# logstash indexer01 config:
+input {
+  redis {
+    host => 'redis-internal01'
+    data_type => 'list'
+    key => 'app:unmappable'
+    type => 'app:unmappable'
+  }
+}
+output { stdout { debug => true } }
+
+# logstash indexer02 config:
+input {
+  redis {
+    host => 'redis-internal02'
+    data_type => 'list'
+    key => 'app:unmappable'
+    type => 'app:unmappable'
+  }
+}
+output { stdout { debug => true } }
+
+# From the commandline
+beaver -c /etc/beaver/conf -f /var/log/unmappable.log -t redis
+
+

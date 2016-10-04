@@ -32,3 +32,33 @@
 #rabbitmq_timeout: 
 ## Default 1. Message deliveryMode. 1: non persistent 2: persistent
 #rabbitmq_delivery_mode: 
+
+
+
+#
+# Example
+#
+## RabbitMQ connecting to defaults on remote broker:
+
+# /etc/beaver/conf
+[beaver]
+rabbitmq_host: 10.0.0.1
+
+# logstash indexer config:
+input { amqp {
+    name => 'logstash-queue'
+    type => 'direct'
+    host => '10.0.0.1'
+    exchange => 'logstash-exchange'
+    key => 'logstash-key'
+    exclusive => false
+    durable => false
+    auto_delete => false
+  }
+}
+output { stdout { debug => true } }
+
+# From the commandline
+beaver -c /etc/beaver/conf -t rabbitmq
+
+
